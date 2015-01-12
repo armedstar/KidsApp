@@ -1,0 +1,204 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+<meta name="viewport" content="width=320; user-scalable=no" />
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<title>Minimal AppLaud App</title>
+
+<!--<script type="text/javascript" charset="utf-8" src="phonegap-1.4.1.js"></script>-->
+<script type="text/javascript" src="js/shared/cordova-2.1.0.js"></script>
+<script type="text/javascript" charset="utf-8">
+var fileSystem;
+
+//generic getById
+function getById(id) {
+    return document.querySelector(id);
+}
+//generic content logger
+function logit(s) 
+{
+    console.log(s);
+    
+    var regex = new RegExp('\n', 'g');
+    getById("#content").innerHTML += s.replace(regex, '<br />');
+}
+
+//generic error handler
+function onFSError(e) {
+    getById("#content").innerHTML = "<h2>Error</h2>"+e.toString();
+}
+
+function onFSError(fileError) 
+{
+  var msg = '';
+
+  switch (fileError.code) {
+    case FileError.QUOTA_EXCEEDED_ERR:
+      msg = 'QUOTA_EXCEEDED_ERR';
+      break;
+    case FileError.NOT_FOUND_ERR:
+      msg = 'NOT_FOUND_ERR';
+      break;
+    case FileError.SECURITY_ERR:
+      msg = 'SECURITY_ERR';
+      break;
+    case FileError.INVALID_MODIFICATION_ERR:
+      msg = 'INVALID_MODIFICATION_ERR';
+      break;
+    case FileError.INVALID_STATE_ERR:
+      msg = 'INVALID_STATE_ERR';
+      break;
+    default:
+      msg = 'Unknown Error';
+      break;
+  };
+
+  console.log('FileError: ' + msg);
+  getById("#content").innerHTML = "<h2>FileError</h2>" + msg;
+}
+
+function doDeleteFile(e) {
+    fileSystem.root.getFile("test.txt", {create:true}, function(f) {
+        f.remove(function() {
+            logit("File removed<p/>");
+        });
+    }, onFSError);
+}
+
+function metadataFile(m) {
+    logit("File was last modified "+m.modificationTime+"<p/>");    
+}
+
+function doMetadataFile(e) {
+    fileSystem.root.getFile("test.txt", {create:true}, function(f) {
+        f.getMetadata(metadataFile,onFSError);
+    }, onFSError);
+}
+
+function readFile(f) {
+    reader = new FileReader();
+    reader.onloadend = function(e) {
+        console.log("go to end");
+        logit("<pre>" + e.target.result + "</pre><p/>");
+    }
+    reader.readAsText(f);
+}
+
+function doReadFile(e) {
+    fileSystem.root.getFile("test.txt", {create:true}, readFile, onFSError);
+}
+
+function appendFile(f) {
+
+    f.createWriter(function(writerOb) {
+        writerOb.onwrite=function() {
+            logit("Done writing to file.<p/>");
+        }
+        //go to the end of the file...
+        writerOb.seek(writerOb.length);
+        writerOb.write("Test at "+new Date().toString() + "\n");
+    })
+
+}
+
+function doAppendFile(e) {
+    fileSystem.root.getFile("test.txt", {create:true}, appendFile, onFSError);
+}
+
+function gotFiles(entries) {
+    var s = "";
+    for(var i=0,len=entries.length; i<len; i++) {
+        //entry objects include: isFile, isDirectory, name, fullPath
+        s+= entries[i].fullPath;
+        if (entries[i].isFile) {
+            s += " [F]";
+        }
+        else {
+            s += " [D]";
+        }
+        s += "\n";
+        
+    }
+    s+="<p/>";
+    logit(s);
+}
+
+function doDirectoryListing(e) {
+    //get a directory reader from our FS
+    var dirReader = fileSystem.root.createReader();
+
+    dirReader.readEntries(gotFiles,onFSError);        
+}
+
+function onFSSuccess(fs) {
+    fileSystem = fs;
+
+    getById("#dirListingButton").addEventListener("touchstart",doDirectoryListing);            
+    getById("#addFileButton").addEventListener("touchstart",doAppendFile);            
+    getById("#readFileButton").addEventListener("touchstart",doReadFile);            
+    getById("#metadataFileButton").addEventListener("touchstart",doMetadataFile);            
+    getById("#deleteFileButton").addEventListener("touchstart",doDeleteFile);
+    
+    getById("#dirListingButton").addEventListener("mouseup",doDirectoryListing);            
+    getById("#addFileButton").addEventListener("mouseup",doAppendFile);            
+    getById("#readFileButton").addEventListener("mouseup",doReadFile);            
+    getById("#metadataFileButton").addEventListener("mouseup",doMetadataFile);            
+    getById("#deleteFileButton").addEventListener("mouseup",doDeleteFile);            
+    
+    logit( "Got the file system: "+fileSystem.name +" " + "root entry name is "+fileSystem.root.name + "<p/>")  
+    logit( "Got the file system: "+fileSystem.name +" " + "root entry fullPath is "+fileSystem.root.fullPath + "<p/>")   
+
+    doDirectoryListing();
+}
+
+DEVICE_MODE_ENABLED = true;
+
+function onBodyLoad() 
+{
+    if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) 
+    {
+        console.log("RUNNING ON DEVICE");
+        document.addEventListener("deviceready", onDeviceReady, false);
+    } 
+    else 
+    {
+        console.log("RUNNING OFF DEVICE");
+        DEVICE_MODE_ENABLED = false;
+        onDeviceReady(); //this is the browser
+    }
+}
+
+function onDeviceReady() 
+{
+    //request the persistent file system
+    window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+    if (DEVICE_MODE_ENABLED)
+    {
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFSSuccess, onFSError);
+    }
+    else
+    {
+        window.requestFileSystem(window.PERSISTENT, 0, onFSSuccess, onFSError);
+    }  
+}
+</script>
+
+<style>
+button { width: 100%; padding: 5px; }
+</style>
+</head>
+
+<body onload="onBodyLoad();" id="stage" class="theme">
+
+<button id="addFileButton">Create/Append to Test File</button>
+<button id="readFileButton">Read Test File</button>
+<button id="metadataFileButton">Get Test File Metadata</button>
+<button id="deleteFileButton">Delete Test File</button>
+<button id="dirListingButton">Show Directory Contents</button>
+<input type="file" id="myfile" multiple />
+
+<div id="content"></div>
+
+</body>
+</html>

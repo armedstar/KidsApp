@@ -1,0 +1,26 @@
+{
+    "applications": {
+        "Playskool": {
+            "applicationId": "OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA", 
+            "masterKey": "CaVUh6qCQ5FArfbhDUTIgATDHx9vvZuQtITI5CDe"
+        }, 
+        "Playskool-Research": {
+            "applicationId": "5kztLw44aLzgoAKTz1adry8I3JXjzxqaBRSWDuIw", 
+            "masterKey": "KbsmvUeNAx4HfiqH7wlNbQYOE98YjrD79Ya02US3"
+        }, 
+        "Playskool-Research-B": {
+            "applicationId": "WjrJS7OCMGfQwBEDr49ZKr1ERbbgSKhl69PbP9UA", 
+            "masterKey": "KsormjraPNH8dMH5w3cPcVn50icorhGuf7noQvr3"
+        }, 
+        "Playskool-Sales": {
+            "applicationId": "0UDyiaboOc49zQEB3YZBnd6aiCTNngHMVTLZzZBP", 
+            "masterKey": "4T7g9cvqr1sN0uxnJ7zzRG2kGT9n6F85EsET6MhH"
+        }, 
+        "_default": {
+            "link": "Playskool-Research-B"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.1.8"
+    }
+}

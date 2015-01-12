@@ -1,0 +1,128 @@
+<html>
+    <head>
+        <title>Playskool</title>
+        <link rel="prefetch" href="scribble box demo.ttf">
+            
+            
+        <script type="text/javascript" src="js/shared/jquery/jquery-1.8.3.min.js"></script>
+        <!--<script type="text/javascript" src="js/shared/jquery/jquery-1.8.3.js"></script>-->
+            
+        <script type="text/javascript" src="js/shared/Box2dWeb-2.1.a.3.js"></script>
+        <script type="text/javascript" src="js/shared/cordova-2.1.0.js"></script>
+        <script type="text/javascript" src="js/shared/puremvc/puremvc-1.1.min.js"></script>
+    	<script type="text/javascript" src="js/shared/utils/EventDispatcher.js"></script>
+    	<script type="text/javascript" src="js/shared/utils/EventS.js"></script>
+    	<script type="text/javascript" src="js/shared/utils/Relegate.js"></script>
+        <script type="text/javascript" src="js/shared/utils/Utils.js"></script>
+        <script type="text/javascript" src="js/shared/utils/MouseAndTouch.js"></script>
+        <script type="text/javascript" src="js/shared/ApplicationPreferences.js"></script>
+        
+        <script type="text/javascript" src="js/ces/CESConstants.js"></script>
+        <script type="text/javascript" src="js/ces/CESApp.js"></script>
+       
+        <script type="text/javascript">
+           
+            function onBodyLoad() 
+            {
+                if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) 
+                {
+                    console.log("RUNNING ON DEVICE");
+                    document.addEventListener("deviceready", onDeviceReady, false);
+                } 
+                else 
+                {
+                    console.log("RUNNING OFF DEVICE");
+                    DEVICE_MODE_ENABLED = false;
+                    onDeviceReady(); //this is the browser
+                }
+        	}
+           
+            /* When this function is called, PhoneGap has been initialized and is ready to roll */
+            /* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
+            see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
+            for more details -jm */
+            function onDeviceReady()
+            {
+               try {
+               	 //PureMVC entry point.
+               	 ApplicationFacade.getInstance("PLAYSKOOL").startup();
+               } catch (e) {
+               	 alert(e.message);
+               }
+            }          
+        </script>
+            
+        <style>
+            @font-face{
+                font-family: Scribble;
+                src: url('scribble box demo.ttf');
+            }
+            
+            body {
+                background-image: url('images/pages/ces/loginBackground.png');
+            }
+            
+            #mainCanvas {
+                position:absolute;
+                top:0;
+                left:0;
+            }
+            
+            #border {
+                width:1024px;
+                height:768px;
+                position:absolute;
+                top:0;
+                left:0;
+                z-index:9;
+                background: url('images/pages/ces/border.png') no-repeat 0 10px;
+            }
+            
+            #playBtn {
+                position: absolute;
+                top:300;
+                left:470;
+                z-index: 9999;
+                display:none;
+            }
+            
+            #backBtn {
+                position: absolute;
+                top:10;
+                left:-5;
+                z-index: 9999;
+            }
+            
+            #video {
+                position:absolute;
+                top:0;
+                left:0;
+                width:1024px;
+                height:768px;
+                z-index:99;
+            }
+            
+            #videoPlayer {
+                position:absolute;
+                top:0;
+                left:0;
+                width:1024px;
+                height:768px;
+                display:none;
+            }
+        </style>
+            
+    </head>
+    <body style="margin:0;padding:0;" onload="onBodyLoad()">
+        <div id="border"></div>
+        <div id='shell' style="position: relative;">
+            <canvas id="mainCanvas" width="1024" height="768" ></canvas>
+            
+            <div id="videoPlayer">
+                <video id='video'></video>
+                <div id="playBtn"><img id="playImg" src="images/pages/ces/playBtn.png" /></div>
+                <div id="backBtn"><img src="images/pages/ces/backBtn.png" /></div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,139 @@
+<html>
+    <head>
+        <title>Playskool</title>
+        
+        <link rel="prefetch" href="scribble box demo.ttf" />
+        
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+        <link rel="stylesheet" type="text/css" href="css/videoPlayer/advancedVideoPlayer.css" />
+        <link rel="stylesheet" type="text/css" href="css/videoPlayer/simpleVideoPlayer.css" />
+            
+        <!-- Parse used for user backend -->
+        <script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.1.5.min.js"></script>
+        
+        <script type="text/javascript" src="js/shared/jquery/jquery-1.8.3.min.js"></script>
+        <!--<script type="text/javascript" src="js/shared/jquery/jquery-1.8.3.js"></script>-->
+        <!--<script type="text/javascript" src="js/shared/jingo/jingo-0.8.2-beta.min.js"></script>-->
+        <script type="text/javascript" src="js/shared/jingo/jingo-0.8.2-beta.js"></script>
+            
+        <script type="text/javascript" src="js/shared/Box2dWeb-2.1.a.3.js"></script>
+        <script type="text/javascript" src="js/shared/cordova-2.1.0.js"></script>
+        <script type="text/javascript" src="js/shared/puremvc/puremvc-1.1.min.js"></script>
+        
+        <script type="text/javascript" src="js/shared/utils/EventDispatcher.js"></script>
+    	<script type="text/javascript" src="js/shared/utils/EventS.js"></script>
+    	<script type="text/javascript" src="js/shared/utils/Relegate.js"></script>
+        <script type="text/javascript" src="js/shared/utils/Utils.js"></script>
+        <script type="text/javascript" src="js/shared/utils/remaining.js"></script>
+        <script type="text/javascript" src="js/shared/utils/MouseAndTouch.js"></script>
+        <script type="text/javascript" src="js/shared/ApplicationPreferences.js"></script>
+        
+        <script type="text/javascript" src="js/shared/view/component/iscroll.js"></script>
+        
+        <script type="text/javascript" src="js/shared/constants.js"></script>
+       
+        <script type="text/javascript">
+        
+            DEVICE_MODE_ENABLED = true;
+        
+            jingo.init(
+                {
+                    repos: 
+                    {
+                        main: './js'
+                    },
+                    verbosity: 'warn',
+                    timeout: 10000
+                });
+            
+            function onBodyLoad() 
+            {
+                if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) 
+                {
+                    console.log("RUNNING ON DEVICE");
+                    document.addEventListener("deviceready", onDeviceReady, false);
+                } 
+                else 
+                {
+                    console.log("RUNNING OFF DEVICE");
+                    DEVICE_MODE_ENABLED = false;
+                    onDeviceReady(); //this is the browser
+                }
+        	}
+           
+            /* When this function is called, PhoneGap has been initialized and is ready to roll */
+            /* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
+            see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
+            for more details -jm */
+            function onDeviceReady()
+            {
+                jingo.anonymous(
+                {
+                    require: 
+                    [
+                        'ages_all.AgesAllApp'
+                    ],
+                    exec: function() 
+                    {
+                        try 
+                        {
+                            //PureMVC entry point.
+                            ApplicationFacade.getInstance("PLAYSKOOL").startup();
+                        } 
+                        catch (e) 
+                        {
+                            alert(e.message);
+                        }
+                    }
+                });
+            }          
+        </script>
+        
+    </head>
+    <body style="margin:0;padding:0;" onload="onBodyLoad()">
+    
+        <div id='shell' style="position: relative;">
+        
+            <canvas id="mainCanvas" width="1024" height="768" ></canvas>
+            
+            <div id="namePlate">
+                <div id="namePlate_logoutDrawer"><img src="images/pages/shared/backArrowDrawer.png" /></div>
+                <div id="namePlate_nameplateIcon"></div>
+                <div id="namePlate_title"></div>
+                <div id="namePlate_closeButton"></div>
+            </div>
+            
+            <div id="themePicker">
+                <div id="themePicker_themeIcon"></div>
+            </div>
+            
+            <div id="advancedVideoPlayer">
+                <video id='advancedVideoPlayer_video'></video>
+                <div id="advancedVideoPlayer_headerBox">
+                    <div id="advancedVideoPlayer_backBtn"><img src="images/pages/shared/advancedVideoPlayer/playerBackBtn.png" /></div>
+                    <div id="advancedVideoPlayer_programTitle"></div>
+                    <div id="advancedVideoPlayer_episodesBtn"></div>
+                </div>
+                <div id="advancedVideoPlayer_controlBox">
+                    <div id="advancedVideoPlayer_playBtn"><img src="images/pages/shared/advancedVideoPlayer/pauseBtn.png" /></div>
+                    <div id="advancedVideoPlayer_scrubber">
+                        <div id="advancedVideoPlayer_progress"><div id="advancedVideoPlayer_scrubberButton"></div></div>
+                    </div>
+                    <div id="advancedVideoPlayer_timeRemaining"></div>
+                </div>
+                <div id="advancedVideoPlayer_videoListHeaderBox"><div id="advancedVideoPlayer_videoListTitle"></div></div>
+                <div id="advancedVideoPlayer_videoListClose"><div id="advancedVideoPlayer_episodesCloseButton"></div></div>
+                <div id="advancedVideoPlayer_videoList">
+                    <div id="advancedVideoPlayer_videoListWrapper"></div>
+                </div>
+            </div>
+            
+            <div id="simpleVideoPlayer">
+                <video id='simpleVideoPlayer_video'></video>
+                <div id="simpleVideoPlayer_playBtn"><img id="playImg" src="images/pages/shared/simpleVideoPlayer/playBtn.png" /></div>
+                <div id="simpleVideoPlayer_backBtn"><img src="images/pages/shared/simpleVideoPlayer/backBtn.png" /></div>
+            </div>
+            
+        </div>
+    </body>
+</html>

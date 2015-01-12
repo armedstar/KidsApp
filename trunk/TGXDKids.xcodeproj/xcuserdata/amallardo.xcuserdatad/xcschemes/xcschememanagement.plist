@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SchemeUserState</key>
+	<dict>
+		<key>TGXDKids-Ages0to3.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+		<key>TGXDKids-Ages3to6.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
+		</dict>
+		<key>TGXDKids-Ages7to9.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
+		<key>TGXDKids-AgesAll.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+		<key>TGXDKids-CES.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>0</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>3112FB7B1696BF3E006FDFF4</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>317BB0B816FFDD3E00596011</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>31B111B116FFE4D50052EB40</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>31B1121016FFEAB40052EB40</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>31B1126F16FFED170052EB40</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>

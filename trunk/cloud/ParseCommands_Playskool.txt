@@ -1,0 +1,176 @@
+export APPLICATION_ID="OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA"
+export REST_API_KEY="LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH"
+
+
+
+curl -X POST \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{}' \
+https://api.parse.com/1/functions/hello
+
+
+// JOSHUA'S LISTS
+
+curl -X POST \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"contextId" : "randomApp"}' \
+https://api.parse.com/1/classes/ProgramList
+
+curl -X POST \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"contextId" : "orderedApp"}' \
+https://api.parse.com/1/classes/ProgramList
+
+curl -X PUT \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"user" : {"__op":"AddRelation","objects":[{"__type":"Pointer","className":"_User","objectId":"mifHPKeGzG"}]}}' \
+https://api.parse.com/1/classes/ProgramList/DpHCl6GOya
+
+curl -X PUT \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"user" : {"__op":"AddRelation","objects":[{"__type":"Pointer","className":"_User","objectId":"mifHPKeGzG"}]}}' \
+https://api.parse.com/1/classes/ProgramList/653VfvlGe0
+
+curl -X PUT \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"programs" : {"__op":"AddRelation","objects":[
+{"__type":"Pointer","className":"Program","objectId":"6JwY5Rb3hW"},
+{"__type":"Pointer","className":"Program","objectId":"GjROjSg1Qg"},
+{"__type":"Pointer","className":"Program","objectId":"UyDW0VuXpm"},
+{"__type":"Pointer","className":"Program","objectId":"aXgQW6X5w7"},
+{"__type":"Pointer","className":"Program","objectId":"oxqH5Dfi1K"},
+{"__type":"Pointer","className":"Program","objectId":"Cg1O7lsEC3"},
+{"__type":"Pointer","className":"Program","objectId":"XXXudeMuAI"},
+{"__type":"Pointer","className":"Program","objectId":"mAd7DZsv35"},
+{"__type":"Pointer","className":"Program","objectId":"ZoXJ2jGd5Z"},
+{"__type":"Pointer","className":"Program","objectId":"5TvjwTn4GR"},
+{"__type":"Pointer","className":"Program","objectId":"sEl0b6X5Px"},
+{"__type":"Pointer","className":"Program","objectId":"XE34bbo3xS"},
+{"__type":"Pointer","className":"Program","objectId":"6lKYX21UKs"},
+{"__type":"Pointer","className":"Program","objectId":"eyGj8HthRr"},
+{"__type":"Pointer","className":"Program","objectId":"rOX4LTaXXf"},
+{"__type":"Pointer","className":"Program","objectId":"Xn2QBjrgPP"},
+{"__type":"Pointer","className":"Program","objectId":"vz9GIDucNN"},
+{"__type":"Pointer","className":"Program","objectId":"G86885v2IF"},
+{"__type":"Pointer","className":"Program","objectId":"4V9ffF26gs"},
+{"__type":"Pointer","className":"Program","objectId":"CmorsqO6bx"},
+{"__type":"Pointer","className":"Program","objectId":"j6FX4R9VMx"},
+{"__type":"Pointer","className":"Program","objectId":"HC2VZhesxI"},
+{"__type":"Pointer","className":"Program","objectId":"J2OzBim5e7"},
+{"__type":"Pointer","className":"Program","objectId":"GLc3wwJpZ4"},
+{"__type":"Pointer","className":"Program","objectId":"28BegUllyZ"},
+{"__type":"Pointer","className":"Program","objectId":"pMiIBZZ39f"},
+{"__type":"Pointer","className":"Program","objectId":"paBJHuhPy8"},
+{"__type":"Pointer","className":"Program","objectId":"BFVF69KGyk"},
+{"__type":"Pointer","className":"Program","objectId":"52L8PBsyhF"},
+{"__type":"Pointer","className":"Program","objectId":"yHYKvPo2Mz"}]}}' \
+https://api.parse.com/1/classes/ProgramList/653VfvlGe0
+
+
+curl -X PUT \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"programs" : {"__op":"AddRelation","objects":[
+{"__type":"Pointer","className":"Program","objectId":"UbwX53gTi8"},
+{"__type":"Pointer","className":"Program","objectId":"JwOvDJ043n"},
+{"__type":"Pointer","className":"Program","objectId":"UyDW0VuXpm"},
+{"__type":"Pointer","className":"Program","objectId":"aXgQW6X5w7"},
+{"__type":"Pointer","className":"Program","objectId":"oxqH5Dfi1K"},
+{"__type":"Pointer","className":"Program","objectId":"Cg1O7lsEC3"},
+{"__type":"Pointer","className":"Program","objectId":"XXXudeMuAI"},
+{"__type":"Pointer","className":"Program","objectId":"mAd7DZsv35"},
+{"__type":"Pointer","className":"Program","objectId":"ZoXJ2jGd5Z"},
+{"__type":"Pointer","className":"Program","objectId":"5TvjwTn4GR"},
+{"__type":"Pointer","className":"Program","objectId":"sEl0b6X5Px"},
+{"__type":"Pointer","className":"Program","objectId":"XE34bbo3xS"},
+{"__type":"Pointer","className":"Program","objectId":"6lKYX21UKs"},
+{"__type":"Pointer","className":"Program","objectId":"eyGj8HthRr"},
+{"__type":"Pointer","className":"Program","objectId":"rOX4LTaXXf"},
+{"__type":"Pointer","className":"Program","objectId":"Xn2QBjrgPP"},
+{"__type":"Pointer","className":"Program","objectId":"vz9GIDucNN"},
+{"__type":"Pointer","className":"Program","objectId":"G86885v2IF"},
+{"__type":"Pointer","className":"Program","objectId":"4V9ffF26gs"},
+{"__type":"Pointer","className":"Program","objectId":"CmorsqO6bx"},
+{"__type":"Pointer","className":"Program","objectId":"j6FX4R9VMx"},
+{"__type":"Pointer","className":"Program","objectId":"HC2VZhesxI"},
+{"__type":"Pointer","className":"Program","objectId":"J2OzBim5e7"},
+{"__type":"Pointer","className":"Program","objectId":"GLc3wwJpZ4"},
+{"__type":"Pointer","className":"Program","objectId":"28BegUllyZ"},
+{"__type":"Pointer","className":"Program","objectId":"pMiIBZZ39f"},
+{"__type":"Pointer","className":"Program","objectId":"paBJHuhPy8"},
+{"__type":"Pointer","className":"Program","objectId":"BFVF69KGyk"},
+{"__type":"Pointer","className":"Program","objectId":"52L8PBsyhF"},
+{"__type":"Pointer","className":"Program","objectId":"yHYKvPo2Mz"}]}}' \
+https://api.parse.com/1/classes/ProgramList/DpHCl6GOya
+
+
+
+
+// NATHAN'S LISTS
+
+curl -X POST \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"contextId" : "randomApp"}' \
+https://api.parse.com/1/classes/ProgramList
+
+curl -X POST \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"contextId" : "orderedApp"}' \
+https://api.parse.com/1/classes/ProgramList
+
+curl -X PUT \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"user" : {"__op":"AddRelation","objects":[{"__type":"Pointer","className":"_User","objectId":"Zkr1Bll0C9"}]}}' \
+https://api.parse.com/1/classes/ProgramList/zTmGEcQ2KC
+
+curl -X PUT \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"user" : {"__op":"AddRelation","objects":[{"__type":"Pointer","className":"_User","objectId":"Zkr1Bll0C9"}]}}' \
+https://api.parse.com/1/classes/ProgramList/OGjWaW2uUC
+
+curl -X PUT \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"programs" : {"__op":"AddRelation","objects":[
+{"__type":"Pointer","className":"Program","objectId":"6JwY5Rb3hW"},
+{"__type":"Pointer","className":"Program","objectId":"GjROjSg1Qg"},
+{"__type":"Pointer","className":"Program","objectId":"UyDW0VuXpm"},
+{"__type":"Pointer","className":"Program","objectId":"aXgQW6X5w7"},
+{"__type":"Pointer","className":"Program","objectId":"oxqH5Dfi1K"}]}}' \
+https://api.parse.com/1/classes/ProgramList/zTmGEcQ2KC
+
+
+curl -X PUT \
+-H "X-Parse-Application-Id: OVKCeZUq3DaYyWdUx16ZNhtBLUntpdemxzADluaA" \
+-H "X-Parse-REST-API-Key: LucdpL1kLSF7TEkEAMmT2trpzyVtm31No3KP0fQH" \
+-H "Content-Type: application/json" \
+-d '{"programs" : {"__op":"AddRelation","objects":[
+{"__type":"Pointer","className":"Program","objectId":"UbwX53gTi8"},
+{"__type":"Pointer","className":"Program","objectId":"JwOvDJ043n"},
+{"__type":"Pointer","className":"Program","objectId":"UyDW0VuXpm"},
+{"__type":"Pointer","className":"Program","objectId":"aXgQW6X5w7"},
+{"__type":"Pointer","className":"Program","objectId":"oxqH5Dfi1K"}]}}' \
+https://api.parse.com/1/classes/ProgramList/OGjWaW2uUC
+

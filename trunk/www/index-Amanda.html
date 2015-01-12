@@ -1,0 +1,1133 @@
+<html>
+    <head>
+        <title>Playskool</title>
+        <link rel="prefetch" href="scribble box demo.ttf">
+            
+        <script type="text/javascript" src="js/shared/Box2dWeb-2.1.a.3.js"></script>
+        <script type="text/javascript" src="js/shared/cordova-2.1.0.js"></script>
+   <!--     <script type="text/javascript" src="js/shared/puremvc/puremvc-1.1.min.js"></script>
+    	<script type="text/javascript" src="js/shared/utils/EventDispatcher.js"></script>
+    	<script type="text/javascript" src="js/shared/utils/EventS.js"></script>
+    	<script type="text/javascript" src="js/shared/utils/Relegate.js"></script>
+        <script type="text/javascript" src="js/shared/utils/Utils.js"></script>
+        
+        <script type="text/javascript" src="js/random/RandomApp.js"></script>
+        <script type="text/javascript" src="js/shared/constants.js"></script>-->
+       
+        <script type="text/javascript">
+            var watchID = null;
+            
+            function onBodyLoad()
+            {		
+                document.addEventListener("deviceready", onDeviceReady, false);
+            }
+           
+            /* When this function is called, PhoneGap has been initialized and is ready to roll */
+            /* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
+            see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
+            for more details -jm */
+            function onDeviceReady()
+            {
+               try {
+               	 //PureMVC entry point.
+               	 ApplicationFacade.getInstance("PLAYSKOOL").startup();
+               } catch (e) {
+               	 alert(e.message);
+               }
+
+            }
+            
+            var mouseX, mouseY, mousePVec, isMouseDown, selectedBody, mouseJoint;
+                        
+                        
+        </script>
+            
+        <style>
+            @font-face{
+                font-family: Scribble;
+                src: url('scribble box demo.ttf');
+            }
+            
+            #canvas{
+                background: #ffffff url(images/pages/test/background.png);
+            }
+            
+            #border{
+                width:1024px;
+                height:768px;
+                position:absolute;
+                top:0;
+                left:0;
+                z-index:999;
+                background: url(images/pages/test/border.png);
+            }
+        </style>
+            
+    </head>
+    <body style="margin:0;padding:0;background-color:#666666;" onload="onBodyLoad()">
+
+        <audio id="press" preload>
+          <source src="res/audio/press.wav" type="audio/wav" />
+        </audio> 
+
+        <audio id="falling" preload>
+          <source src="res/audio/fallingFinal.wav" type="audio/wav" />
+        </audio> 
+
+        <div id="border"></div>
+        <div id='application'>
+            <canvas id="canvas" width="1024" height="768" style="background-color:#333333;" ></canvas>
+        </div>
+    </body>
+    
+   
+   <script type="text/javascript">
+       
+       
+        var    b2Vec2 = Box2D.Common.Math.b2Vec2
+        ,      b2BodyDef = Box2D.Dynamics.b2BodyDef
+        ,      b2Body = Box2D.Dynamics.b2Body
+        //,      b3Body = Box2D.Dynamics.b2Body
+        ,      b2FixtureDef = Box2D.Dynamics.b2FixtureDef
+        ,      b2World = Box2D.Dynamics.b2World
+        ,      b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+        ,      b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
+        ,      b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef
+        ,      b2Joint = Box2D.Dynamics.Joints.b2Joint
+        ,      b2DistanceJointDef = Box2D.Dynamics.Joints.b2DistanceJointDef
+        ,      b2RopeJointDef = Box2D.Dynamics.Joints.b2RopeJointDef
+        ,      b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef
+        ,      b2DebugDraw = Box2D.Dynamics.b2DebugDraw
+        ,      b2Fixture = Box2D.Dynamics.b2Fixture
+        ,      b2AABB = Box2D.Collision.b2AABB
+        ,      b2Color = Box2D.Common.b2Color;
+
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+
+        var world = new b2World(new b2Vec2(0,50), true);
+
+        var SCALE = 30;
+        var startPoint;
+        var groupCount;
+       
+        var newGround = false;
+       
+       //starting position configs
+        var xConfig01 = [0,18,23,23,24,16,19,11,20,20];
+        var xConfig02 = [15,11,16,18,5,25,12,10,7,25];
+        var xConfig03 = [20,20,10,23,17,10,10,1,21,25];
+
+
+        //load audio
+        
+        var press = document.getElementById('press');
+        var fallingSound = document.getElementById('falling');
+
+        var borderHit = '';
+        var bodyHit = '';
+        var bodyToRemove = '';
+
+
+        //
+
+        
+       
+       //declare images
+       
+       var backgroundImageLrg = new Image();
+       backgroundImageLrg.src = 'images/pages/test/lrgBoxBg.png';
+       
+       var backgroundImageMed = new Image();
+       backgroundImageMed.src = 'images/pages/test/medBoxBg.png';
+       
+       var backgroundImageSm = new Image();
+       backgroundImageSm.src = 'images/pages/test/smBoxBg.png';
+
+       
+       var testMainImgLrg = new Image();
+       testMainImgLrg.src = 'images/pages/test/mainImageTest.png';
+       
+       var testMainImgMed = new Image();
+       testMainImgMed.src = 'images/pages/test/medMainImgTest.png';
+       
+       var testMainImgSm = new Image();
+       testMainImgSm.src = 'images/pages/test/smMainImageTest.png';
+                
+       var myAvatar = new Image();
+       myAvatar.src = 'images/pages/test/avatar.png';
+                
+       
+       function getAvatar(){
+           var avatarAnchorDef = new b2BodyDef;
+           avatarAnchorDef.type = b2Body.b2_staticBody;
+           avatarAnchorDef.position.Set(8, 0);
+           
+           var avatarDef = new b2BodyDef;
+           avatarDef.type = b2Body.b2_dynamicBody;
+           avatarDef.position.Set(0,-10);
+           avatarDef.userData = 'myAvatar';
+           avatarDef.linearDamping = 2;
+           
+           var avatarFixDef = new b2FixtureDef;
+           avatarFixDef.density = 0;
+           avatarFixDef.friction = 0;
+           avatarFixDef.restitution = 0;
+           avatarFixDef.shape = new b2PolygonShape;
+           avatarFixDef.shape.SetAsBox(5, 1.5);
+           avatarFixDef.isSensor = true;
+           
+           var avatarAnchorFixDef = new b2FixtureDef;
+           avatarAnchorFixDef.density = 0;
+           avatarAnchorFixDef.friction = 0 ;
+           avatarAnchorFixDef.restitution = 0;
+           avatarAnchorFixDef.shape = new b2PolygonShape;
+           avatarAnchorFixDef.shape.SetAsBox(5, 1);
+           avatarAnchorFixDef.isSensor = true;
+           
+           var avatar = world.CreateBody(avatarDef);
+           var avatarAnchor = world.CreateBody(avatarAnchorDef);
+        
+           avatar.CreateFixture(avatarFixDef);
+           avatarAnchor.CreateFixture(avatarAnchorFixDef);
+           
+           
+           var avatarJoint = new b2DistanceJointDef();
+           avatarJoint.bodyA = avatar;
+           avatarJoint.bodyB = avatarAnchor;
+           avatarJoint.localAnchorA = new b2Vec2(0,0);
+           avatarJoint.localAnchorB = new b2Vec2(0,2);
+         
+           world.CreateJoint(avatarJoint);
+          
+       }
+    
+        
+       function getGround(){
+           //ground
+           var groundDef = new b2BodyDef;
+           groundDef.type = b2Body.b2_staticBody;
+           groundDef.position.Set(0, 25.8);
+           groundDef.userData = 'ground';
+           
+           var groundFixDef = new b2FixtureDef;
+           groundFixDef.density = 1.0;
+           groundFixDef.friction = 0.5;
+           groundFixDef.restitution = 0.2;
+           
+           groundFixDef.shape = new b2PolygonShape;
+           groundFixDef.shape.SetAsBox(35, .5);
+
+           var ground = world.CreateBody(groundDef);
+           ground.CreateFixture(groundFixDef);
+           
+           if (newGround == true){
+               newGround = false;
+               getBodies();
+           }
+           
+       }
+
+
+       //left border
+       
+       var leftDef = new b2BodyDef;
+       leftDef.type = b2Body.b2_staticBody;
+       leftDef.position.Set(0, 25);
+       leftDef.userData = 'leftBorder';
+
+       var leftFixDef = new b2FixtureDef;
+       leftFixDef.density = 1.0;
+       leftFixDef.friction = 0.5;
+       leftFixDef.restitution = 0.2;
+
+       
+       leftFixDef.shape = new b2PolygonShape;
+       leftFixDef.shape.SetAsBox(.8, 35);
+       
+       var leftBorder = world.CreateBody(leftDef);
+       leftBorder.CreateFixture(leftFixDef);
+       
+       //right border
+       
+       var rightDef = new b2BodyDef;
+       rightDef.type = b2Body.b2_staticBody;
+       rightDef.position.Set(34.5, 0);
+       rightDef.userData = 'rightBorder';
+       
+       var rightFixDef = new b2FixtureDef;
+       rightFixDef.density = 1.0;
+       rightFixDef.friction = 0.5;
+       rightFixDef.restitution = 0.2;
+       
+       rightFixDef.shape = new b2PolygonShape;
+       rightFixDef.shape.SetAsBox(1.2, 30);
+       
+       var rightBorder = world.CreateBody(rightDef);
+       rightBorder.CreateFixture(rightFixDef);
+       
+       function getThirdGroup(){
+           
+           //Box 2D Objects//
+           
+           //----Large Boxes
+           
+           var lrgBox01Def = new b2BodyDef;
+           lrgBox01Def.type = b2Body.b2_dynamicBody;
+           lrgBox01Def.position.Set(20,2);
+           //lrgBox01Def.fixedRotation = true;
+           lrgBox01Def.userData = 'lrgBox';
+           
+           var lrgBox02Def = new b2BodyDef;
+           lrgBox02Def.type = b2Body.b2_dynamicBody;
+           lrgBox02Def.position.Set(20,2);
+           //lrgBox02Def.fixedRotation = true;
+           lrgBox02Def.userData = 'lrgBox';
+           
+           var lrgFixDef = new b2FixtureDef;
+           lrgFixDef.density = 250.0;
+           lrgFixDef.friction = 0.2;
+           lrgFixDef.restitution = .2;
+           lrgFixDef.shape = new b2PolygonShape;
+           lrgFixDef.shape.SetAsBox(5.0,3.9);
+           
+           
+           //-------Medium Boxes
+           
+           var medBox01Def = new b2BodyDef;
+           medBox01Def.type = b2Body.b2_dynamicBody;
+           medBox01Def.position.Set(0,20);
+           //medBox01Def.fixedRotation = true;
+           medBox01Def.userData = 'medBox';
+           
+           var medBox02Def = new b2BodyDef;
+           medBox02Def.type = b2Body.b2_dynamicBody;
+           medBox02Def.position.Set(0,20);
+           //medBox02Def.fixedRotation = true;
+           medBox02Def.userData = 'medBox';
+           
+           var medBox03Def = new b2BodyDef;
+           medBox03Def.type = b2Body.b2_dynamicBody;
+           //medBox03Def.fixedRotation = true;
+           medBox03Def.position.Set(0,20);
+           medBox03Def.userData = 'medBox';
+           
+           var medFixDef = new b2FixtureDef;
+           medFixDef.density = 250.0;
+           medFixDef.friction = 0.2;
+           medFixDef.restitution = .2;
+           medFixDef.shape = new b2PolygonShape;
+           medFixDef.shape.SetAsBox(3.6,2.8);
+           
+           
+           //----Small Boxes
+           
+           
+           var smBox01Def = new b2BodyDef;
+           smBox01Def.type = b2Body.b2_dynamicBody;
+           smBox01Def.position.Set(0,20);
+           //smBox01Def.fixedRotation = true;
+           smBox01Def.userData = 'smBox';
+           
+           
+           var smBox02Def = new b2BodyDef;
+           smBox02Def.type = b2Body.b2_dynamicBody;
+           smBox02Def.position.Set(0,20);
+           //smBox02Def.fixedRotation = true;
+           smBox02Def.userData = 'smBox';
+           
+           var smBox03Def = new b2BodyDef;
+           smBox03Def.type = b2Body.b2_dynamicBody;
+           smBox03Def.position.Set(0,20);
+           //smBox03Def.fixedRotation = true;
+           smBox03Def.userData = 'smBox';
+           
+           var smBox04Def = new b2BodyDef;
+           smBox04Def.type = b2Body.b2_dynamicBody;
+           smBox04Def.position.Set(0,20);
+           //smBox04Def.fixedRotation = true;
+           smBox04Def.userData = 'smBox';
+           
+           var smBox05Def = new b2BodyDef;
+           smBox05Def.type = b2Body.b2_dynamicBody;
+           smBox05Def.position.Set(0,20);
+           //smBox05Def.fixedRotation = true;
+           smBox05Def.userData = 'smBox';
+           
+           var smFixDef = new b2FixtureDef;
+           smFixDef.density = 250.0;
+           smFixDef.friction = 0.2;
+           smFixDef.restitution = .2;
+           smFixDef.shape = new b2PolygonShape;
+           smFixDef.shape.SetAsBox(3.0,2.3);
+           
+           lrgBox01Def.position.y = 0;
+           lrgBox02Def.position.y = 0;
+           
+           medBox01Def.position.y = 0;
+           medBox02Def.position.y = 0;
+           medBox03Def.position.y = 0;
+           
+           smBox01Def.position.y = 0;
+           smBox02Def.position.y = 0;
+           smBox03Def.position.y = 0;
+           smBox04Def.position.y = 0;
+           smBox05Def.position.y = 0;
+           
+           
+               
+               lrgBox01Def.position.x = xConfig03[0];
+               lrgBox02Def.position.x = xConfig03[1];
+               
+               medBox01Def.position.x = xConfig03[2];
+               medBox02Def.position.x = xConfig03[3];
+               medBox03Def.position.x = xConfig03[4];
+               
+               smBox01Def.position.x = xConfig03[5];
+               smBox02Def.position.x = xConfig03[6];
+               smBox03Def.position.x = xConfig03[7];
+               smBox04Def.position.x = xConfig03[8];
+               smBox05Def.position.x = xConfig03[9];
+           
+           //create boxes
+           var lrgBox01 = world.CreateBody(lrgBox01Def);
+           var lrgBox02 = world.CreateBody(lrgBox02Def);
+           
+           var medBox01 = world.CreateBody(medBox01Def);
+           var medBox02 = world.CreateBody(medBox02Def);
+           var medBox03 = world.CreateBody(medBox03Def);
+           
+           var smBox01 = world.CreateBody(smBox01Def);
+           var smBox02 = world.CreateBody(smBox02Def);
+           var smBox03 = world.CreateBody(smBox03Def);
+           var smBox04 = world.CreateBody(smBox04Def);
+           var smBox05 = world.CreateBody(smBox05Def);
+           
+           lrgBox01.CreateFixture(lrgFixDef);
+           lrgBox02.CreateFixture(lrgFixDef);
+           
+           medBox01.CreateFixture(medFixDef);
+           medBox02.CreateFixture(medFixDef);
+           medBox03.CreateFixture(medFixDef);
+           
+           smBox01.CreateFixture(smFixDef);
+           smBox02.CreateFixture(smFixDef);
+           smBox03.CreateFixture(smFixDef);
+           smBox04.CreateFixture(smFixDef);
+           smBox05.CreateFixture(smFixDef);
+               
+           fallingSound.play();
+               
+           }
+       
+       function getSecondGroup(){
+           
+           //Box 2D Objects//
+           
+           //----Large Boxes
+           
+           var lrgBox01Def = new b2BodyDef;
+           lrgBox01Def.type = b2Body.b2_dynamicBody;
+           lrgBox01Def.position.Set(20,2);
+           //lrgBox01Def.fixedRotation = true;
+           lrgBox01Def.userData = 'lrgBox';
+           
+           var lrgBox02Def = new b2BodyDef;
+           lrgBox02Def.type = b2Body.b2_dynamicBody;
+           lrgBox02Def.position.Set(20,2);
+           //lrgBox02Def.fixedRotation = true;
+           lrgBox02Def.userData = 'lrgBox';
+           
+           var lrgFixDef = new b2FixtureDef;
+           lrgFixDef.density = 250.0;
+           lrgFixDef.friction = 0.2;
+           lrgFixDef.restitution = .2;
+           lrgFixDef.shape = new b2PolygonShape;
+           lrgFixDef.shape.SetAsBox(5.0,3.9);
+           
+           
+           //-------Medium Boxes
+           
+           var medBox01Def = new b2BodyDef;
+           medBox01Def.type = b2Body.b2_dynamicBody;
+           medBox01Def.position.Set(0,20);
+           //medBox01Def.fixedRotation = true;
+           medBox01Def.userData = 'medBox';
+           
+           var medBox02Def = new b2BodyDef;
+           medBox02Def.type = b2Body.b2_dynamicBody;
+           medBox02Def.position.Set(0,20);
+           //medBox02Def.fixedRotation = true;
+           medBox02Def.userData = 'medBox';
+           
+           var medBox03Def = new b2BodyDef;
+           medBox03Def.type = b2Body.b2_dynamicBody;
+           //medBox03Def.fixedRotation = true;
+           medBox03Def.position.Set(0,20);
+           medBox03Def.userData = 'medBox';
+           
+           var medFixDef = new b2FixtureDef;
+           medFixDef.density = 250.0;
+           medFixDef.friction = 0.2;
+           medFixDef.restitution = .2;
+           medFixDef.shape = new b2PolygonShape;
+           medFixDef.shape.SetAsBox(3.6,2.8);
+           
+           
+           //----Small Boxes
+           
+           
+           var smBox01Def = new b2BodyDef;
+           smBox01Def.type = b2Body.b2_dynamicBody;
+           smBox01Def.position.Set(0,20);
+           //smBox01Def.fixedRotation = true;
+           smBox01Def.userData = 'smBox';
+           
+           
+           var smBox02Def = new b2BodyDef;
+           smBox02Def.type = b2Body.b2_dynamicBody;
+           smBox02Def.position.Set(0,20);
+           //smBox02Def.fixedRotation = true;
+           smBox02Def.userData = 'smBox';
+           
+           var smBox03Def = new b2BodyDef;
+           smBox03Def.type = b2Body.b2_dynamicBody;
+           smBox03Def.position.Set(0,20);
+           //smBox03Def.fixedRotation = true;
+           smBox03Def.userData = 'smBox';
+           
+           var smBox04Def = new b2BodyDef;
+           smBox04Def.type = b2Body.b2_dynamicBody;
+           smBox04Def.position.Set(0,20);
+           //smBox04Def.fixedRotation = true;
+           smBox04Def.userData = 'smBox';
+           
+           var smBox05Def = new b2BodyDef;
+           smBox05Def.type = b2Body.b2_dynamicBody;
+           smBox05Def.position.Set(0,20);
+           //smBox05Def.fixedRotation = true;
+           smBox05Def.userData = 'smBox';
+           
+           var smFixDef = new b2FixtureDef;
+           smFixDef.density = 250.0;
+           smFixDef.friction = 0.2;
+           smFixDef.restitution = .2;
+           smFixDef.shape = new b2PolygonShape;
+           smFixDef.shape.SetAsBox(3.0,2.4);
+           
+           lrgBox01Def.position.y = 0;
+           lrgBox02Def.position.y = 0;
+           
+           medBox01Def.position.y = 0;
+           medBox02Def.position.y = 0;
+           medBox03Def.position.y = 0;
+           
+           smBox01Def.position.y = 0;
+           smBox02Def.position.y = 0;
+           smBox03Def.position.y = 0;
+           smBox04Def.position.y = 0;
+           smBox05Def.position.y = 0;
+           
+           
+               
+               lrgBox01Def.position.x = xConfig02[0];
+               lrgBox02Def.position.x = xConfig02[1];
+               
+               medBox01Def.position.x = xConfig02[2];
+               medBox02Def.position.x = xConfig02[3];
+               medBox03Def.position.x = xConfig02[4];
+               
+               smBox01Def.position.x = xConfig02[5];
+               smBox02Def.position.x = xConfig02[6];
+               smBox03Def.position.x = xConfig02[7];
+               smBox04Def.position.x = xConfig02[8];
+               smBox05Def.position.x = xConfig02[9];
+           
+           //create boxes
+           var lrgBox01 = world.CreateBody(lrgBox01Def);
+           var lrgBox02 = world.CreateBody(lrgBox02Def);
+           
+           var medBox01 = world.CreateBody(medBox01Def);
+           var medBox02 = world.CreateBody(medBox02Def);
+           var medBox03 = world.CreateBody(medBox03Def);
+           
+           var smBox01 = world.CreateBody(smBox01Def);
+           var smBox02 = world.CreateBody(smBox02Def);
+           var smBox03 = world.CreateBody(smBox03Def);
+           var smBox04 = world.CreateBody(smBox04Def);
+           var smBox05 = world.CreateBody(smBox05Def);
+           
+           lrgBox01.CreateFixture(lrgFixDef);
+           lrgBox02.CreateFixture(lrgFixDef);
+           
+           medBox01.CreateFixture(medFixDef);
+           medBox02.CreateFixture(medFixDef);
+           medBox03.CreateFixture(medFixDef);
+           
+           smBox01.CreateFixture(smFixDef);
+           smBox02.CreateFixture(smFixDef);
+           smBox03.CreateFixture(smFixDef);
+           smBox04.CreateFixture(smFixDef);
+           smBox05.CreateFixture(smFixDef);
+               
+           fallingSound.play();
+               
+           }
+       
+       
+       
+       function getFirstGroup(){
+           
+           //Box 2D Objects//
+           
+           //----Large Boxes
+           
+           var lrgBox01Def = new b2BodyDef;
+           lrgBox01Def.type = b2Body.b2_dynamicBody;
+           lrgBox01Def.position.Set(20,2);
+           //lrgBox01Def.fixedRotation = true;
+           lrgBox01Def.userData = 'lrgBox';
+           
+           var lrgBox02Def = new b2BodyDef;
+           lrgBox02Def.type = b2Body.b2_dynamicBody;
+           lrgBox02Def.position.Set(20,2);
+           //lrgBox02Def.fixedRotation = true;
+           lrgBox02Def.userData = 'lrgBox';
+           
+           var lrgFixDef = new b2FixtureDef;
+           lrgFixDef.density = 250.0;
+           lrgFixDef.friction = 0.2;
+           lrgFixDef.restitution = .2;
+           lrgFixDef.shape = new b2PolygonShape;
+           lrgFixDef.shape.SetAsBox(5.0,3.9);
+           
+           
+           //-------Medium Boxes
+           
+           var medBox01Def = new b2BodyDef;
+           medBox01Def.type = b2Body.b2_dynamicBody;
+           medBox01Def.position.Set(0,20);
+           //medBox01Def.fixedRotation = true;
+           medBox01Def.userData = 'medBox';
+           
+           var medBox02Def = new b2BodyDef;
+           medBox02Def.type = b2Body.b2_dynamicBody;
+           medBox02Def.position.Set(0,20);
+           //medBox02Def.fixedRotation = true;
+           medBox02Def.userData = 'medBox';
+           
+           var medBox03Def = new b2BodyDef;
+           medBox03Def.type = b2Body.b2_dynamicBody;
+           //medBox03Def.fixedRotation = true;
+           medBox03Def.position.Set(0,20);
+           medBox03Def.userData = 'medBox';
+           
+           var medFixDef = new b2FixtureDef;
+           medFixDef.density = 250.0;
+           medFixDef.friction = 0.2;
+           medFixDef.restitution = .2;
+           medFixDef.shape = new b2PolygonShape;
+           medFixDef.shape.SetAsBox(3.6,2.8);
+           
+           
+           //----Small Boxes
+           
+           
+           var smBox01Def = new b2BodyDef;
+           smBox01Def.type = b2Body.b2_dynamicBody;
+           smBox01Def.position.Set(0,20);
+           //smBox01Def.fixedRotation = true;
+           smBox01Def.userData = 'smBox';
+           
+           
+           var smBox02Def = new b2BodyDef;
+           smBox02Def.type = b2Body.b2_dynamicBody;
+           smBox02Def.position.Set(0,20);
+           //smBox02Def.fixedRotation = true;
+           smBox02Def.userData = 'smBox';
+           
+           var smBox03Def = new b2BodyDef;
+           smBox03Def.type = b2Body.b2_dynamicBody;
+           smBox03Def.position.Set(0,20);
+           //smBox03Def.fixedRotation = true;
+           smBox03Def.userData = 'smBox';
+           
+           var smBox04Def = new b2BodyDef;
+           smBox04Def.type = b2Body.b2_dynamicBody;
+           smBox04Def.position.Set(0,20);
+           //smBox04Def.fixedRotation = true;
+           smBox04Def.userData = 'smBox';
+           
+           var smBox05Def = new b2BodyDef;
+           smBox05Def.type = b2Body.b2_dynamicBody;
+           smBox05Def.position.Set(0,20);
+           //smBox05Def.fixedRotation = true;
+           smBox05Def.userData = 'smBox';
+           
+           var smFixDef = new b2FixtureDef;
+           smFixDef.density = 250.0;
+           smFixDef.friction = 0.2;
+           smFixDef.restitution = .2;
+           smFixDef.shape = new b2PolygonShape;
+           smFixDef.shape.SetAsBox(3.0,2.4);
+           
+           /*lrgBox01Def.position.y = -80;
+           lrgBox02Def.position.y = -90;
+           
+           medBox01Def.position.y = -40;
+           medBox02Def.position.y = -10;
+           medBox03Def.position.y = -30;
+           
+           smBox01Def.position.y = -60;
+           smBox02Def.position.y = -70;
+           smBox03Def.position.y = 0;
+           smBox04Def.position.y = -50;
+           smBox05Def.position.y = -20;*/
+
+           lrgBox01Def.position.y = 0;
+           lrgBox02Def.position.y = -20;
+           
+           medBox01Def.position.y = -30;
+           medBox02Def.position.y =  -40;
+           medBox03Def.position.y = -45;
+           
+           smBox01Def.position.y = -60;
+           smBox02Def.position.y = -70;
+           smBox03Def.position.y = -85;
+           smBox04Def.position.y = -80;
+           smBox05Def.position.y = -80;
+           
+           
+           
+           lrgBox01Def.position.x = 23;
+           lrgBox02Def.position.x = 10;
+               
+           medBox01Def.position.x = 12;
+           medBox02Def.position.x = 10;
+           medBox03Def.position.x = 25;
+               
+           smBox01Def.position.x = 18;
+           smBox02Def.position.x = 5;
+           smBox03Def.position.x = 30;
+           smBox04Def.position.x = 18;
+           smBox05Def.position.x = 25;
+/* 
+          lrgBox01Def.position.x = 25;
+           lrgBox02Def.position.x = Math.floor((Math.random()*24)+1);
+               
+           medBox01Def.position.x = Math.floor((Math.random()*24)+1);
+           medBox02Def.position.x = Math.floor((Math.random()*24)+1);
+           medBox03Def.position.x = Math.floor((Math.random()*24)+1);
+               
+           smBox01Def.position.x = Math.floor((Math.random()*24)+1);
+           smBox02Def.position.x = Math.floor((Math.random()*24)+1);
+           smBox03Def.position.x = Math.floor((Math.random()*24)+1);
+           smBox04Def.position.x = Math.floor((Math.random()*24)+1);
+           smBox05Def.position.x = Math.floor((Math.random()*24)+1);
+*/
+           
+           //create boxes
+           var lrgBox01 = world.CreateBody(lrgBox01Def);
+           lrgBox01.CreateFixture(lrgFixDef);
+           var lrgBox01pos = lrgBox01.GetPosition();
+
+           var lrgBox02 = world.CreateBody(lrgBox02Def);
+           lrgBox02.CreateFixture(lrgFixDef);
+           var lrgBox02pos = lrgBox02.GetPosition();
+
+           
+           var medBox01 = world.CreateBody(medBox01Def);
+           medBox01.CreateFixture(medFixDef);
+           var medBox01pos = medBox01.GetPosition();
+           
+
+           var medBox02 = world.CreateBody(medBox02Def);
+           medBox02.CreateFixture(medFixDef);
+           var medBox02pos = medBox01.GetPosition();
+
+
+           var medBox03 = world.CreateBody(medBox03Def);
+           medBox03.CreateFixture(medFixDef);
+           var medBox03pos = medBox03.GetPosition();
+
+           
+           var smBox01 = world.CreateBody(smBox01Def);
+           smBox01.CreateFixture(smFixDef);
+           var smBox01pos = smBox01.GetPosition();
+
+           
+           var smBox02 = world.CreateBody(smBox02Def);
+           smBox02.CreateFixture(smFixDef);
+           var smBox02pos = smBox02.GetPosition();
+
+
+           var smBox03 = world.CreateBody(smBox03Def);
+           smBox03.CreateFixture(smFixDef);
+           var smBox03pos = smBox03.GetPosition();
+
+
+           var smBox04 = world.CreateBody(smBox04Def);
+           smBox04.CreateFixture(smFixDef);
+           var smBox04pos = smBox04.GetPosition();
+
+
+           var smBox05 = world.CreateBody(smBox05Def);
+           smBox05.CreateFixture(smFixDef);
+           var smBox05pos = smBox05.GetPosition();
+
+
+          fallingSound.play();
+
+
+          console.log(lrgBox01pos.x, lrgBox02pos.x, medBox01pos.x, medBox02pos.x, medBox03pos.x, smBox01pos.x, smBox02pos.x, smBox03pos.x, smBox04pos.x, smBox05pos.x);
+
+           console.log(lrgBox02pos.y, medBox01pos.y, medBox02pos.y, medBox03pos.y, smBox01pos.y, smBox02pos.y, smBox03pos.y, smBox04pos.y, smBox05pos.y);
+                  
+         }
+       
+      
+       
+
+
+       
+
+ var debugDraw = new b2DebugDraw();
+        debugDraw.SetSprite ( document.getElementById ("canvas").getContext ("2d"));
+        debugDraw.SetDrawScale(30);     //define scale
+        debugDraw.SetFillAlpha(0.3);    //define transparency
+        debugDraw.SetLineThickness(1.0);
+        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+        world.SetDebugDraw(debugDraw);
+
+
+         function getBodyCB(fixture) {
+            if(fixture.GetBody().GetType() != b2Body.b2_staticBody) {
+               if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePVec)) {
+                  selectedBody = fixture.GetBody();
+                  return false;
+               }
+            }
+            return true;
+         }
+       
+       
+       function getBodies(){
+          
+           if (newGround == false){
+           
+               if ((!groupCount) || (groupCount == 0)){
+                   groupCount = 0;
+                   getFirstGroup();
+                   isRemovable = false;
+               }
+           
+               if (groupCount == 1){
+                   getSecondGroup();
+               }
+           
+               if (groupCount == 2){
+                   getThirdGroup();
+                   groupCount = 0;
+               }
+           
+           }
+           
+       }
+       
+       
+       function drawAvatar(){
+            context.drawImage(myAvatar, -160, -170);
+
+           context.font = 'bold 25px sans-serif';
+           context.fillStyle = 'FFFFFF';
+           context.fillText('User Name', -70, 5);
+         }
+
+       function drawLrgBox(){
+           context.drawImage(backgroundImageLrg, -165, -140);
+           context.drawImage(testMainImgLrg, -140, -110);
+       }
+       
+       function drawMedBox(){
+           context.drawImage(backgroundImageMed, -122, -95);
+           context.drawImage(testMainImgMed, -100, -85);
+       }
+       
+       function drawSmBox(){
+           context.drawImage(backgroundImageSm, -105, -84);
+           context.drawImage(testMainImgSm, -84, -73);
+       }
+       
+       function drawLrgText(){
+           context.font = 'bold 16px sans-serif';
+           context.fillStyle = 'black';
+           context.fillText('The Lion King', -135, 100);
+       }
+
+       function drawMedText(){
+           context.font = 'bold 16px sans-serif';
+           context.fillStyle = 'black';
+           context.fillText('Mickey Mouse Club', -98, 65);
+       }
+       
+       function drawSmText(){
+           context.font = 'bold 16px sans-serif';
+           context.fillStyle = 'black';
+           context.fillText('Seasame Street', -84, 55);
+       }
+
+       
+         //update
+
+         function update() {
+          
+             
+            
+                
+           //////// 
+
+            world.Step(1 / 60, 200, 10);
+            world.ClearForces();
+             
+
+           //attach images
+             
+           context.clearRect(0, 0, 1024, 768);
+           //world.DrawDebugData();
+             
+            for (b = world.GetBodyList(); b; b = b.GetNext()){
+                var pos = b.GetPosition();
+
+                context.save();
+                context.translate(pos.x * SCALE, pos.y * SCALE);
+                context.rotate(b.GetAngle());
+                
+                
+                if (b.GetUserData() == 'lrgBox'){
+                    drawLrgBox();
+                    drawLrgText();
+  
+                }
+                
+                if (b.GetUserData() == 'medBox'){
+                    drawMedBox();
+                    drawMedText();
+                    
+                }
+
+
+                if (b.GetUserData() == 'smBox'){
+                    
+                    drawSmBox();
+                    drawSmText();
+                    
+                }
+                
+                if (b.GetUserData() == 'myAvatar'){
+                    drawAvatar();
+                    
+                }
+                
+                context.restore();
+
+                
+                if (pos.y > 50){
+                    world.DestroyBody(b);
+
+                    getGround();
+                }
+
+            var vel = b.GetLinearVelocity();
+            var isRemovable = true;
+
+            if(vel.x == 0){
+                  b.userData = '';
+            }
+            
+                ///throw body///
+
+           if(isMouseDown && (!mouseJoint)) { 
+                var body = getBodyAtMouse();
+                //var bodyPos = body.GetPosition();
+              
+                if(body) {
+                  
+                  md = new b2MouseJointDef();
+                  md.bodyA = world.GetGroundBody();
+                  md.bodyB = body;
+                  md.target.Set(mouseX, mouseY);
+                  md.collideConnected = true;
+                  md.maxForce = 300.0 * body.GetMass();
+                  mouseJoint = world.CreateJoint(md);
+                  body.SetAwake(true);
+                  body.userData = 'selected';
+
+                ///
+
+               } 
+           }
+        
+           if(mouseJoint) {
+                  
+              if(isMouseDown) {
+               
+                  mouseJoint.SetTarget(new b2Vec2(mouseX, mouseY));
+                  isRemovable = false;
+
+              } else {
+
+                  world.DestroyJoint(mouseJoint);
+                  mouseJoint = false;
+                  //isRemovable = true;
+                  
+
+              }
+
+            } 
+                ///
+                
+
+                if((pos.y < 0) && (b.userData == 'selected')){
+                  world.DestroyBody(b);
+                }
+
+                //if(vel.x > 0.02){
+                  if((borderHit == 'leftBorder') && (bodyHit == 'selected') && (b.userData == 'selected') && (isRemovable == true)){
+                    world.DestroyBody(b);
+                  }
+
+                  if((borderHit == 'rightBorder') && (bodyHit == 'selected') && (b.userData == 'selected') && (isRemovable == true)){
+                    world.DestroyBody(b);
+                  }
+                //}
+
+
+            } 
+           
+
+        
+         };
+       
+       
+       window.setInterval(update,1000/60);
+       getAvatar();
+       getGround();
+       getBodies();
+
+       
+        //Collision Detection
+
+        var listener = new Box2D.Dynamics.b2ContactListener;
+        
+        listener.BeginContact = function(contact){
+                    bodyHit = contact.GetFixtureA().GetBody().userData;
+                    borderHit = contact.GetFixtureB().GetBody().GetUserData();
+                    
+                  }
+
+        listener.EndContact = function(contact){
+                    bodyHit = contact.GetFixtureA().GetBody().userData;
+                    borderHit = contact.GetFixtureB().GetBody().GetUserData();
+
+                    if((borderHit == 'leftBorder') || (borderHit == 'rightBorder')){
+                      borderHit = '';
+                    }
+
+                  }
+
+        listener.PostSolve = function(impulse){
+
+            //console.log(bodyHit + ' collided with ' + borderHit);
+
+         
+         }
+
+
+        this.world.SetContactListener(listener);
+
+       
+        //
+
+
+       
+       
+       //// for testing trap door ////
+       
+       var isMouseDown;
+
+       
+      //mouse
+         
+         var mouseX, mouseY, mousePVec, isMouseDown, selectedBody, mouseJoint;
+         var canvasPosition = getElementPosition(document.getElementById("canvas"));
+         
+         document.addEventListener("mousedown", function(e) {
+            isMouseDown = true;
+            handleMouseMove(e);
+            document.addEventListener("mousemove", handleMouseMove, true);
+         }, true);
+         
+         document.addEventListener("mouseup", function() {
+            document.removeEventListener("mousemove", handleMouseMove, true);
+            isMouseDown = false;
+            mouseX = undefined;
+            mouseY = undefined;
+         }, true);
+         
+         function handleMouseMove(e) {
+            mouseX = (e.clientX - canvasPosition.x) / 30;
+            mouseY = (e.clientY - canvasPosition.y) / 30;
+         };
+         
+         function getBodyAtMouse() {
+            mousePVec = new b2Vec2(mouseX, mouseY);
+            var aabb = new b2AABB();
+            aabb.lowerBound.Set(mouseX - 0.001, mouseY - 0.001);
+            aabb.upperBound.Set(mouseX + 0.001, mouseY + 0.001);
+            
+            // Query the world for overlapping shapes.
+
+            selectedBody = null;
+            world.QueryAABB(getBodyCB, aabb);
+            return selectedBody;
+         }
+
+         function getBodyCB(fixture) {
+            if(fixture.GetBody().GetType() != b2Body.b2_kinematicBody) {
+               if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePVec)) {
+                  selectedBody = fixture.GetBody();
+                  return false;
+               }
+            }
+            return true;
+         }
+
+
+         //helpers
+
+         
+         function getElementPosition(element) {
+            var elem=element, tagname="", x=0, y=0;
+            
+            while((typeof(elem) == "object") && (typeof(elem.tagName) != "undefined")) {
+               y += elem.offsetTop;
+               x += elem.offsetLeft;
+               tagname = elem.tagName.toUpperCase();
+
+               if(tagname == "BODY")
+                  elem=0;
+
+               if(typeof(elem) == "object") {
+                  if(typeof(elem.offsetParent) == "object")
+                     elem = elem.offsetParent;
+               }
+            }
+
+            return {x: x, y: y};
+         };
+       
+
+   </script>
+
+
+</html>

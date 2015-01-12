@@ -1,0 +1,587 @@
+<html>
+    <head>
+        <title>Playskool</title>
+        <link rel="prefetch" href="scribble box demo.ttf">
+            
+        <script type="text/javascript" src="js/shared/Box2dWeb-2.1.a.3.js"></script>
+        <script type="text/javascript" src="js/shared/cordova-2.1.0.js"></script>
+   <!--     <script type="text/javascript" src="js/shared/puremvc/puremvc-1.1.min.js"></script>
+    	<script type="text/javascript" src="js/shared/utils/EventDispatcher.js"></script>
+    	<script type="text/javascript" src="js/shared/utils/EventS.js"></script>
+    	<script type="text/javascript" src="js/shared/utils/Relegate.js"></script>
+        <script type="text/javascript" src="js/shared/utils/Utils.js"></script>
+        
+        <script type="text/javascript" src="js/random/RandomApp.js"></script>
+        <script type="text/javascript" src="js/shared/constants.js"></script>-->
+       
+        <script type="text/javascript">
+            var watchID = null;
+            
+            function onBodyLoad()
+            {		
+                document.addEventListener("deviceready", onDeviceReady, false);
+            }
+           
+            /* When this function is called, PhoneGap has been initialized and is ready to roll */
+            /* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
+            see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
+            for more details -jm */
+            function onDeviceReady()
+            {
+               try {
+               	 //PureMVC entry point.
+               	 ApplicationFacade.getInstance("PLAYSKOOL").startup();
+               } catch (e) {
+               	 alert(e.message);
+               }
+
+            }
+            
+            var mouseX, mouseY, mousePVec, isMouseDown, selectedBody, mouseJoint;
+                        
+                        
+        </script>
+            
+        <style>
+            @font-face{
+                font-family: Scribble;
+                src: url('scribble box demo.ttf');
+            }
+            
+            #canvas{
+                background: #ffffff url(images/pages/test/background.png);
+            }
+            
+            #border{
+                width:1024px;
+                height:768px;
+                position:absolute;
+                top:0;
+                left:0;
+                z-index:999;
+                background: url(images/pages/test/border.png);
+            }
+        </style>
+            
+    </head>
+    <body style="margin:0;padding:0;background-color:#666666;" onload="onBodyLoad()">
+
+        <audio id="press" preload>
+          <source src="res/audio/press.wav" type="audio/wav" />
+        </audio> 
+
+        <audio id="falling" preload>
+          <source src="res/audio/fallingFinal.wav" type="audio/wav" />
+        </audio> 
+
+        <div id="border"></div>
+        <div id='application'>
+            <canvas id="canvas" width="1024" height="768" style="background-color:#333333;" ></canvas>
+        </div>
+    </body>
+    
+   
+   <script type="text/javascript">
+       
+       
+        var    b2Vec2 = Box2D.Common.Math.b2Vec2
+        ,      b2BodyDef = Box2D.Dynamics.b2BodyDef
+        ,      b2Body = Box2D.Dynamics.b2Body
+        //,      b3Body = Box2D.Dynamics.b2Body
+        ,      b2FixtureDef = Box2D.Dynamics.b2FixtureDef
+        ,      b2World = Box2D.Dynamics.b2World
+        ,      b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+        ,      b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
+        ,      b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef
+        ,      b2Joint = Box2D.Dynamics.Joints.b2Joint
+        ,      b2DistanceJointDef = Box2D.Dynamics.Joints.b2DistanceJointDef
+        ,      b2RopeJointDef = Box2D.Dynamics.Joints.b2RopeJointDef
+        ,      b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef
+        ,      b2DebugDraw = Box2D.Dynamics.b2DebugDraw
+        ,      b2Fixture = Box2D.Dynamics.b2Fixture
+        ,      b2AABB = Box2D.Collision.b2AABB
+        ,      b2Color = Box2D.Common.b2Color;
+
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+
+        var world = new b2World(new b2Vec2(0,50), true);
+
+        var SCALE = 30;
+        var startPoint;
+        var groupCount;
+       
+        var newGround = false;
+       
+       //starting position configs
+        var xConfig01 = [0,18,23,23,24,16,19,11,20,20];
+        var xConfig02 = [15,11,16,18,5,25,12,10,7,25];
+        var xConfig03 = [20,20,10,23,17,10,10,1,21,25];
+
+
+        //load audio
+        
+        var press = document.getElementById('press');
+        var fallingSound = document.getElementById('falling');
+
+
+       //declare images
+       var canvasBg = new Image();
+       canvasBg.src = 'images/pages/test/background.png';
+
+       var transparentBg = new Image();
+       transparentBg.src = 'images/pages/test/transparentBg.png';  // NOTE:  (WK) Missing???
+
+       var backgroundImageLrg = new Image();
+       backgroundImageLrg.src = 'images/pages/test/lrgBoxBg.png';
+       
+       var backgroundImageMed = new Image();
+       backgroundImageMed.src = 'images/pages/test/medBoxBg.png';
+       
+       var backgroundImageSm = new Image();
+       backgroundImageSm.src = 'images/pages/test/smBoxBg.png';
+
+       
+       var testMainImgLrg = new Image();
+       testMainImgLrg.src = 'images/pages/test/mainImageTest.png';
+       
+       var testMainImgMed = new Image();
+       testMainImgMed.src = 'images/pages/test/medMainImgTest.png';
+       
+       var testMainImgSm = new Image();
+       testMainImgSm.src = 'images/pages/test/smMainImageTest.png';
+                
+       var myAvatar = new Image();
+       myAvatar.src = 'images/pages/test/avatar.png';
+
+       
+       function getAvatar(){
+           var avatarAnchorDef = new b2BodyDef;
+           avatarAnchorDef.type = b2Body.b2_staticBody;
+           avatarAnchorDef.position.Set(8, 0);
+           
+           var avatarDef = new b2BodyDef;
+           avatarDef.type = b2Body.b2_dynamicBody;
+           avatarDef.position.Set(0,-10);
+           avatarDef.userData = 'myAvatar';
+           avatarDef.linearDamping = 2;
+           
+           var avatarFixDef = new b2FixtureDef;
+           avatarFixDef.density = 0;
+           avatarFixDef.friction = 0;
+           avatarFixDef.restitution = 0;
+           avatarFixDef.shape = new b2PolygonShape;
+           avatarFixDef.shape.SetAsBox(5, 1.5);
+           avatarFixDef.isSensor = true;
+           
+           var avatarAnchorFixDef = new b2FixtureDef;
+           avatarAnchorFixDef.density = 0;
+           avatarAnchorFixDef.friction = 0 ;
+           avatarAnchorFixDef.restitution = 0;
+           avatarAnchorFixDef.shape = new b2PolygonShape;
+           avatarAnchorFixDef.shape.SetAsBox(5, 1);
+           avatarAnchorFixDef.isSensor = true;
+           
+           var avatar = world.CreateBody(avatarDef);
+           var avatarAnchor = world.CreateBody(avatarAnchorDef);
+        
+           avatar.CreateFixture(avatarFixDef);
+           avatarAnchor.CreateFixture(avatarAnchorFixDef);
+           
+           
+           var avatarJoint = new b2DistanceJointDef();
+           avatarJoint.bodyA = avatar;
+           avatarJoint.bodyB = avatarAnchor;
+           avatarJoint.localAnchorA = new b2Vec2(0,0);
+           avatarJoint.localAnchorB = new b2Vec2(0,2);
+         
+           world.CreateJoint(avatarJoint);
+          
+       }
+    
+        
+       function getGround(){
+           //ground
+           var groundDef = new b2BodyDef;
+           groundDef.type = b2Body.b2_staticBody;
+           groundDef.position.Set(0, 25.8);
+           groundDef.userData = 'ground';
+           
+           var groundFixDef = new b2FixtureDef;
+           groundFixDef.density = 1.0;
+           groundFixDef.friction = 0.5;
+           groundFixDef.restitution = 0.2;
+           groundFixDef.filter.groupIndex = 2;
+           
+           groundFixDef.shape = new b2PolygonShape;
+           groundFixDef.shape.SetAsBox(35, .5);
+
+           var ground = world.CreateBody(groundDef);
+           ground.CreateFixture(groundFixDef);
+           
+           
+       }
+
+
+       //left border
+       
+       var leftDef = new b2BodyDef;
+       leftDef.type = b2Body.b2_staticBody;
+       leftDef.position.Set(0, 25);
+       leftDef.userData = 'leftBorder';
+
+       var leftFixDef = new b2FixtureDef;
+       leftFixDef.density = 1.0;
+       leftFixDef.friction = 0.5;
+       leftFixDef.restitution = 0.2;
+
+       
+       leftFixDef.shape = new b2PolygonShape;
+       leftFixDef.shape.SetAsBox(.8, 35);
+       
+       var leftBorder = world.CreateBody(leftDef);
+       leftBorder.CreateFixture(leftFixDef);
+       
+       //right border
+       
+       var rightDef = new b2BodyDef;
+       rightDef.type = b2Body.b2_staticBody;
+       rightDef.position.Set(34.5, 0);
+       rightDef.userData = 'rightBorder';
+       
+       var rightFixDef = new b2FixtureDef;
+       rightFixDef.density = 1.0;
+       rightFixDef.friction = 0.5;
+       rightFixDef.restitution = 0.2;
+       
+       rightFixDef.shape = new b2PolygonShape;
+       rightFixDef.shape.SetAsBox(1.2, 30);
+       
+       var rightBorder = world.CreateBody(rightDef);
+       rightBorder.CreateFixture(rightFixDef);
+          
+
+           //----Test Box
+           
+           var lrgBox01Def = new b2BodyDef;
+           lrgBox01Def.type = b2Body.b2_dynamicBody;
+           lrgBox01Def.position.Set(20,2);
+           lrgBox01Def.fixedRotation = true;
+           lrgBox01Def.userData = 'lrgBox';
+           
+           
+           var lrgFixDef = new b2FixtureDef;
+           lrgFixDef.density = 250.0;
+           lrgFixDef.friction = 0.2;
+           lrgFixDef.restitution = .2;
+           lrgFixDef.shape = new b2PolygonShape;
+           lrgFixDef.shape.SetAsBox(5.0,3.9);
+           lrgFixDef.filter.groupIndex = -8;
+
+           lrgBox01Def.position.y = 0;
+           lrgBox01Def.position.x = 23;
+
+           var lrgBox01 = world.CreateBody(lrgBox01Def);
+           lrgBox01.CreateFixture(lrgFixDef);
+           var lrgBox01pos = lrgBox01.GetPosition();
+
+           //--Copy Box
+           var copyBox01Def = new b2BodyDef;
+           copyBox01Def.type = b2Body.b2_dynamicBody;
+           copyBox01Def.position.Set(23,20);
+           copyBox01Def.userData = 'copy';
+           copyBox01Def.fixedRotation = true;
+           
+           
+           var copyFixDef = new b2FixtureDef;
+           copyFixDef.density = 250.0;
+           copyFixDef.friction = 0.2;
+           copyFixDef.restitution = .2;
+           copyFixDef.shape = new b2PolygonShape;
+           copyFixDef.shape.SetAsBox(5.0,3.9);
+           copyFixDef.filter.groupIndex = -8;
+           
+
+           copyBox01Def.position.y = 23;
+           copyBox01Def.position.x = 23;
+
+           var copyBox01 = world.CreateBody(copyBox01Def);
+           copyBox01.CreateFixture(copyFixDef);
+
+           //--BodyAnchor
+           var bodyAnchorDef = new b2BodyDef;
+           bodyAnchorDef.type = b2Body.b2_staticBody;
+           bodyAnchorDef.position.Set(23,20);
+           bodyAnchorDef.userData = 'anchor';
+           bodyAnchorDef.fixedRotation = true;
+           
+           
+           var bodyAnchorFixDef = new b2FixtureDef;
+           bodyAnchorFixDef.density = 250.0;
+           bodyAnchorFixDef.friction = 0.2;
+           bodyAnchorFixDef.restitution = .2;
+           bodyAnchorFixDef.shape = new b2PolygonShape;
+           bodyAnchorFixDef.shape.SetAsBox(5.0,3.9);
+           bodyAnchorFixDef.filter.groupIndex = -8;
+           
+
+           bodyAnchorDef.position.y = 21;
+           bodyAnchorDef.position.x = 23;
+
+           var bodyAnchorBox01 = world.CreateBody(bodyAnchorDef);
+           bodyAnchorBox01.CreateFixture(bodyAnchorFixDef);
+
+
+
+         function getBodyCB(fixture) {
+            if(fixture.GetBody().GetType() != b2Body.b2_staticBody) {
+               if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePVec)) {
+                  selectedBody = fixture.GetBody();
+                  return false;
+               }
+            }
+            return true;
+         }
+       
+       //hiding ghost images using an image overlay
+       function hideImages(){
+         context.drawImage(canvasBg, 0,0);
+       }
+
+       //showing ghost images using transparent image overlay
+       function showImages(){
+        context.drawImage(transparentBg, 0, 0);
+       }
+       
+       function drawAvatar(){
+            context.drawImage(myAvatar, -160, -170);
+
+           context.font = 'bold 25px sans-serif';
+           context.fillStyle = 'FFFFFF';
+           context.fillText('User Name', -70, 5);
+         }
+
+       function drawLrgBox(){
+           context.drawImage(backgroundImageLrg, -165, -140);
+           context.drawImage(testMainImgLrg, -140, -110);
+       }
+       
+ 
+       
+       function drawLrgText(){
+           context.font = 'bold 16px sans-serif';
+           context.fillStyle = 'black';
+           context.fillText('The Lion King', -135, 100);
+       }
+
+       function drawCopy(){
+        for (b = world.GetBodyList(); b; b = b.GetNext()){
+                  var pos = b.GetPosition();
+
+                  context.save();
+                  context.translate(pos.x * SCALE, pos.y * SCALE);
+                  context.rotate(b.GetAngle());
+
+
+                  if (b.GetUserData() == 'copy'){
+                      drawLrgBox();
+                      drawLrgText();
+  
+                  }
+
+                
+                  context.restore();
+
+              } 
+       }
+
+       function drawBoxes(){
+
+        for (b = world.GetBodyList(); b; b = b.GetNext()){
+                var pos = b.GetPosition();
+                var vel = b.GetLinearVelocity();
+
+                context.save();
+                context.translate(pos.x * SCALE, pos.y * SCALE);
+                context.rotate(b.GetAngle());
+
+                if (b.GetUserData() == 'lrgBox'){
+                    drawLrgBox();
+                    drawLrgText();
+                }
+
+                
+                if (b.GetUserData() == 'myAvatar'){
+                    drawAvatar();
+                    
+                }
+
+                /*if (b.GetUserData() == 'anchor'){
+                    drawLrgBox();
+                    
+                }*/
+
+                
+                context.restore();
+
+
+
+            } 
+
+       }
+
+      
+         //update
+
+         function update() {
+
+            world.Step(1 / 60, 200, 10);
+            world.ClearForces();
+            context.clearRect(0, 0, 1024, 768);
+            
+
+            ///throw body///
+
+            if(isMouseDown){
+
+              drawCopy();
+              
+            } 
+
+           if(isMouseDown && (!mouseJoint)) { 
+                
+                var body = getBodyAtMouse();
+              
+                if(body) {
+                  
+                  md = new b2MouseJointDef();
+                  md.bodyA = world.GetGroundBody();
+                  md.bodyB = body;
+                  md.target.Set(mouseX, mouseY);
+                  md.collideConnected = true;
+                  md.maxForce = 300.0 * body.GetMass();
+                  mouseJoint = world.CreateJoint(md);
+                  body.SetAwake(true);
+                  body.userData = 'selected';
+
+                  world.DestroyJoint(distanceJoint);
+
+               } 
+
+           }
+        
+           if(mouseJoint) {
+                  
+              if(isMouseDown) {
+               
+                  mouseJoint.SetTarget(new b2Vec2(mouseX, mouseY));
+
+              } else {
+
+                    world.DestroyJoint(mouseJoint);
+                    mouseJoint = false;
+
+                    dj = new b2DistanceJointDef;
+                    dj.bodyA = bodyAnchorBox01;
+                    dj.bodyB = lrgBox01;
+                    dj.localAnchorA = new b2Vec2(0,0);
+                    dj.localAnchorB = new b2Vec2(0,-.5);
+                    dj.length = .3;
+                    dj.collideConnected = true;
+                    distanceJoint = world.CreateJoint(dj);
+
+              }
+ 
+            } 
+
+            ///
+
+            drawBoxes();
+
+        
+         };
+       
+
+       window.setInterval(update,1000/60);
+       getAvatar();
+       getGround();
+
+        var isMouseDown;
+        //
+
+         //mouse
+         
+         var mouseX, mouseY, mousePVec, isMouseDown, selectedBody, mouseJoint, distanceJoint;
+         var canvasPosition = getElementPosition(document.getElementById("canvas"));
+         
+         document.addEventListener("mousedown", function(e) {
+            isMouseDown = true;
+            handleMouseMove(e);
+            document.addEventListener("mousemove", handleMouseMove, true);
+         }, true);
+         
+         document.addEventListener("mouseup", function() {
+            document.removeEventListener("mousemove", handleMouseMove, true);
+            isMouseDown = false;
+            mouseX = undefined;
+            mouseY = undefined;
+         }, true);
+         
+         function handleMouseMove(e) {
+            mouseX = (e.clientX - canvasPosition.x) / 30;
+            mouseY = (e.clientY - canvasPosition.y) / 30;
+         };
+         
+         function getBodyAtMouse() {
+            mousePVec = new b2Vec2(mouseX, mouseY);
+            var aabb = new b2AABB();
+            aabb.lowerBound.Set(mouseX - 0.001, mouseY - 0.001);
+            aabb.upperBound.Set(mouseX + 0.001, mouseY + 0.001);
+            
+            // Query the world for overlapping shapes.
+
+            selectedBody = null;
+            world.QueryAABB(getBodyCB, aabb);
+            return selectedBody;
+         }
+
+         function getBodyCB(fixture) {
+            if(fixture.GetBody().GetType() != b2Body.b2_kinematicBody) {
+               if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePVec)) {
+                  selectedBody = fixture.GetBody();
+                  return false;
+               }
+            }
+            return true;
+         }
+
+
+
+         //helpers
+
+         
+         function getElementPosition(element) {
+            var elem=element, tagname="", x=0, y=0;
+            
+            while((typeof(elem) == "object") && (typeof(elem.tagName) != "undefined")) {
+               y += elem.offsetTop;
+               x += elem.offsetLeft;
+               tagname = elem.tagName.toUpperCase();
+
+               if(tagname == "BODY")
+                  elem=0;
+
+               if(typeof(elem) == "object") {
+                  if(typeof(elem.offsetParent) == "object")
+                     elem = elem.offsetParent;
+               }
+            }
+
+            return {x: x, y: y};
+         };
+       
+
+   </script>
+
+
+</html>

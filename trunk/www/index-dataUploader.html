@@ -1,0 +1,69 @@
+<html>
+    <head>
+        <title>Playskool-dataUploader</title>
+            
+        <!-- Parse used for user backend -->
+        <script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.1.5.min.js"></script>
+        
+        <script type="text/javascript" src="js/shared/jquery/jquery-1.8.3.min.js"></script>
+        <!--<script type="text/javascript" src="js/shared/jquery/jquery-1.8.3.js"></script>-->
+        <!--<script type="text/javascript" src="js/shared/jingo/jingo-0.8.2-beta.min.js"></script>-->
+        <script type="text/javascript" src="js/shared/jingo/jingo-0.8.2-beta.js"></script>
+        
+    	<script type="text/javascript" src="js/shared/utils/Relegate.js"></script>
+       
+        <script type="text/javascript">
+        
+            jingo.init(
+                {
+                    repos: 
+                    {
+                        main: './js'
+                    },
+                    verbosity: 'debug',
+                    timeout: 10000
+                });
+            
+            function onBodyLoad() 
+            {
+                jingo.anonymous(
+                {
+                    require: 
+                    [
+                        'data.DataUploader',
+                        'data.Logger'
+                    ],
+                    exec: function() 
+                    {
+                        try 
+                        {
+                            logWrapper = document.getElementById('logWrapper');
+                            logger = new data.Logger(logWrapper);
+                            dataUploader = new data.DataUploader(logger);
+                        } 
+                        catch (e) 
+                        {
+                            alert(e.message);
+                        }
+                    }
+                });
+        	}
+            
+            function startUpload() 
+            {
+                try 
+                {
+                    dataUploader.uploadData();
+                } 
+                catch (e) 
+                {
+                    alert(e.message);
+                }
+        	}     
+        </script>
+    </head>
+    <body onload="onBodyLoad()">
+        <button type="button" onclick="startUpload()">Start Upload</button>
+        <div id="logWrapper"></div>
+    </body>
+</html>

@@ -1,0 +1,207 @@
+#advancedVideoPlayer 
+{
+    position:absolute;
+    top:0;
+    left:0;
+    width:1024px;
+    height:768px;
+    background-color: black;
+    z-index: 100;
+    display:none;
+}
+
+#advancedVideoPlayer_playBtn 
+{
+    position: absolute;
+    left: 10;
+    top: 7;
+    width: 84px;
+    height: 93px;
+}
+
+#advancedVideoPlayer_backBtn 
+{
+    position: absolute;
+    top: 7;
+    width: 80px;
+    height: 90px;
+}
+
+
+#advancedVideoPlayer_programTitle 
+{
+    font-family: 'museo-slab900';
+    position: absolute;
+    top: 40;
+    left: 100;
+    font-style : bold;
+    font-size: 22px;
+}
+
+
+#advancedVideoPlayer_scrubber 
+{
+    position: absolute;
+    top: 25;
+    left: 100;
+    width: 800px;
+    height: 33px;
+    background-color: white;
+    z-index: 9999;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+}
+
+#advancedVideoPlayer_scrubberButton
+{
+    position: absolute;
+    top: -16px;
+    left: -5px;
+    text-align:right;
+}
+
+#advancedVideoPlayer_scrubberGraphic
+{
+    position: absolute;
+    right: -40px;
+}
+
+#advancedVideoPlayer_episodesBtn 
+{
+    position: absolute;
+    top: 15;
+    left: 940;
+    width: 90px;
+    height: 90px;
+    background: url('../../images/pages/shared/advancedVideoPlayer/episodesBtn.png') no-repeat;
+    z-index: 9999;
+}
+
+#advancedVideoPlayer_progress 
+{
+    width: 0;
+    height: 33px;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+}
+
+#advancedVideoPlayer_timeRemaining
+{
+    font-family: 'museo-slab900';
+    font-size: 22px;
+    position: absolute;
+    left: 935;
+    top: 30;
+    width: 100px;
+    height: 33px;
+    color: white;
+}
+
+#advancedVideoPlayer_video 
+{
+    position:absolute;
+    top:0;
+    left:0;
+    width:1024px;
+    height:768px;
+    z-index:99;
+}
+
+#advancedVideoPlayer_videoListHeaderBox
+{
+    position:absolute;
+    left: 0;
+    top: 0;
+    height: 97px;
+    width: 1024px;
+    z-index: 99999;
+    display: none;
+}
+
+#advancedVideoPlayer_videoListTitle 
+{
+    font-family: 'museo-slab900';
+    position: absolute;
+    top: 40px;
+    left: 15px;
+    font-style : bold;
+    font-size: 22px;
+}
+
+#advancedVideoPlayer_videoList
+{
+    background-color: #1a191e;
+    opacity: 0.95;
+    width:1024px;
+    height:800px;
+    position:absolute;
+    left:0;
+    top:0;
+    z-index:9999;
+    overflow-x:auto;
+    display: none;
+}
+
+#advancedVideoPlayer_videoListClose
+{
+    position: absolute;
+    top:15;
+    left:950;
+    width: 88px;
+    height: 90px;
+    z-index: 99999;
+    display: none;
+}
+
+#advancedVideoPlayer_videoListWrapper
+{
+    position:absolute;
+    left:0;
+    top:27%;
+    height:312px;
+    float:left;
+    vertical-align:middle;
+}
+
+.advancedVideoPlayer_videoTileTitle 
+{
+    font-family: 'museo-slab900';
+    position: absolute;
+    bottom: 19px;
+    left: 17px;
+    font-size: 22px;
+}
+
+#advancedVideoPlayer_headerBox
+{
+    position:absolute;
+    left: 0;
+    top: 0;
+    height: 97px;
+    width: 1024px;
+    z-index: 9999;
+    background-color: #1a191e;
+    opacity: .9;
+}
+
+#advancedVideoPlayer_controlBox
+{
+    position: absolute;
+    left: 0;
+    top: 680;
+    width: 1024px;
+    height: 90px;
+    z-index: 9999;
+    background-color: #1a191e;
+    opacity: .9;
+}
+
+.nonActionable, .actionable
+{
+    width:436px;
+    height:312px;
+    display:inline;
+    color:#000000;
+}
